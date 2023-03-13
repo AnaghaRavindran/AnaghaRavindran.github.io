@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+<style>
+body {
+    font-family: 'Georgia', cursive;
+    background-color: #e9f5f4;
+    height: 100vh;
+    margin: 0;
+  }
+.container {
+  width: 320px;
+  margin: auto;
+  margin-top: 10px;
+  font-family: 'Georgia', cursive;
+
+}
+
+.container h1 {
+  text-align: center;
+  font-size: 48px;
+  color: #3d2c8f;
+  border: 0;
+  padding-bottom: 50px;
+}
+
+.row {
+  height: 100px;
+}
+
+.col {
+  height: 100px;
+  width: 100px;
+  float: left;
+  font-size: 50px;
+  text-align: center;
+  line-height: 100px;
+  color:  #4ea7c3;
+
+}
+
+
+.border-b {
+  border-bottom: 6px solid #174b64;
+}
+
+.border-r {
+  border-right: 6px solid #174b64;
+}
+
+.winner {
+    color: #010e12;
+}
+.restart  {
+  text-align: center;
+  padding-top: 50px;
+}
+.restart-btn{
+  padding: 12px 15px;
+    cursor: pointer;
+    background-color: #3d2c8f; ;
+    border:1px solid #6049d3;
+    border-radius: 4px;
+    font-family: Georgia, cursive;
+    color: #fff;
+	}
+</style>
+  <title>Document</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Tic Tac Toe</h1>
+    <div class="row border-b">
+      <div class="col border-r"></div>
+      <div class="col border-r"></div>
+      <div class="col"></div>
+    </div>
+    <div class="row border-b">
+      <div class="col border-r"></div>
+      <div class="col border-r"></div>
+      <div class="col"></div>
+    </div>
+    <div class="row">
+      <div class="col border-r"></div>
+      <div class="col border-r"></div>
+      <div class="col"></div>
+    </div>
+  </div>
+  <script>
+  
+  const ticTacToeGame = new TicTacToeGame();
+	ticTacToeGame.start();
+	
+	function TicTacToeGame() {
+	  const board = new Board();
+	  const humanPlayer = new HumanPlayer(board);
+	  const computerPlayer = new ComputerPlayer(board);
+	  let turn = 0;
+	
+	  this.start = function() {
+		const config = { childList: true };
+		const observer = new MutationObserver(() => takeTurn());
+		board.positions.forEach((el) => observer.observe(el, config));
+		takeTurn();
+	  }
+	
+	  function takeTurn() {
+		if (board.checkForWinner()) {
+		  return;
+		}
+	
+		if (turn % 2 === 0) {
+		  humanPlayer.takeTurn();
+		} else {
+		  computerPlayer.takeTurn();
+		}
+	
+		turn++;
+	  };
+	}
+	
+	function Board() {
+	  this.positions = Array.from(document.querySelectorAll('.col'));
+	
+	  this.checkForWinner = function() {
+		let winner = false;
+	
+		const winningCombinations = [
+			[0,1,2],
+			[3,4,5],
+			[6,7,8],
+			[0,4,8],
+			[2,4,6],
+			[0,3,6],
+			[1,4,7],
+			[2,5,8]
+		];
+	
+		const positions = this.positions;
+		winningCombinations.forEach((winningCombo) => {
+		  const pos0InnerText = positions[winningCombo[0]].innerText;
+		  const pos1InnerText = positions[winningCombo[1]].innerText;
+		  const pos2InnerText = positions[winningCombo[2]].innerText;
+		  const isWinningCombo = pos0InnerText !== '' &&
+			pos0InnerText === pos1InnerText && pos1InnerText === pos2InnerText;
+		  if (isWinningCombo) {
+			  winner = true;
+			  winningCombo.forEach((index) => {
+				positions[index].className += ' winner';
+			  })
+		  }
+		});
+	
+		return winner;
+	  }
+	}
+	
+	function ComputerPlayer(board) {
+	  this.takeTurn = function() {
+		let availablePositions = board.positions.filter((p) => p.innerText === '');
+		const move = Math.floor(Math.random() * (availablePositions.length - 0));
+		availablePositions[move].innerText = 'O';
+	  }
+	}
+	
+	function HumanPlayer(board) {
+	  this.takeTurn = function() {
+		board.positions.forEach(el =>
+		  el.addEventListener('click', handleTurnTaken));
+	  }
+	
+	  function handleTurnTaken(event) {
+		event.target.innerText = 'X';
+		board.positions
+		  .forEach(el => el.removeEventListener('click', handleTurnTaken));
+	  }
+	}
+	</script>
+	<div class="restart">
+		<button type="reset" class="restart-btn">Restart Game</button></div>
+		<script>document.querySelector('.restart-btn').addEventListener('click', function(){
+			window.location.reload();
+			return false;});
+			</script>
+</body>
+</html>
